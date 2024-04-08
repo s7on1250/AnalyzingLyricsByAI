@@ -4,7 +4,7 @@ import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from utils import predict, vectorise
 from sklearn.linear_model import LogisticRegression
-from transformers import BertTokenizer, BertModel
+from transformers import RobertaModel, RobertaTokenizer
 import torch
 
 
@@ -35,7 +35,7 @@ with open('./model/labels.txt', 'r') as f:
 class BERTClass(torch.nn.Module):
     def __init__(self):
         super(BERTClass, self).__init__()
-        self.roberta = BertModel.from_pretrained('roberta-base')
+        self.roberta = RobertaModel.from_pretrained('roberta-base')
         # self.l2 = torch.nn.Dropout(0.3)
         self.fc = torch.nn.Linear(768,5)
     
@@ -48,9 +48,9 @@ class BERTClass(torch.nn.Module):
 #model = pickle.load(open('./model/log.pickle', "rb"))
 
 model = BERTClass()
-model.load_state_dict(torch.load('./model/model.bin'),map_location=torch.device('cpu'))
+model.load_state_dict(torch.load('./model/model.bin'))
 #model.to('cpu')
-tokenizer = BertTokenizer.from_pretrained('roberta-base')
+tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 # set background
 set_page_bg('bg.png')
 
