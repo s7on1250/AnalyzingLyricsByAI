@@ -7,6 +7,7 @@ import torch
 from torch.nn import functional as F
 model_name = 'roberta-base'
 from clean_text import text_preprocessing_pipeline
+import nltk
 sys.path.insert(0, '../src')
 from utils import predict
 import re
@@ -31,7 +32,7 @@ def set_page_bg(image_file):
 
 # load labels 
 with open(os.getcwd() + '/model/labels.txt', 'r') as f:
-    labels = [a for a in f.readlines()]
+    labels = f.read().splitlines()
     f.close()
 
 # load model
@@ -70,7 +71,8 @@ if(st.button('Submit')):
     result = text_preprocessing_pipeline(lyrics.title())
 
     label = predict(result, model, tokenizer)
-    genre = label
+
+    genre = labels[label]
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{genre}</p>', unsafe_allow_html=True)
@@ -122,7 +124,3 @@ if(st.button('Submit')):
 
     # Отображение текста с выделенными словами
     st.markdown(highlighted_text, unsafe_allow_html=True)
-
-
-
-
