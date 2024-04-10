@@ -9,6 +9,8 @@ model_name = 'roberta-base'
 from clean_text import text_preprocessing_pipeline
 sys.path.insert(0, '../src')
 from utils import predict
+import re
+import pymorphy3
 
 # background
 def set_page_bg(image_file):
@@ -77,7 +79,7 @@ if(st.button('Submit')):
     st.balloons()
 
     def highlight_words(text, words):
-        morph = pymorphy2.MorphAnalyzer()
+        morph = pymorphy3.MorphAnalyzer()
         tokens = text.split("\n")  # Разделяем текст по переносам строк
         highlighted_lines = []
         for line in tokens:
