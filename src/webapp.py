@@ -1,11 +1,15 @@
+import sys
+import os
 import streamlit as st
 import base64
-from utils import *
 from transformers import AutoModel, AutoTokenizer
 import torch
 from torch.nn import functional as F
 model_name = 'roberta-base'
 from clean_text import text_preprocessing_pipeline
+sys.path.insert(0, '../src')
+from utils import predict
+
 
 
 # background
@@ -24,8 +28,9 @@ def set_page_bg(image_file):
     st.markdown(style, unsafe_allow_html=True)
     return
 
+
 # load labels 
-with open('./model/labels.txt', 'r') as f:
+with open(os.getcwd() + '/model/labels.txt', 'r') as f:
     labels = [a for a in f.readlines()]
     f.close()
 
@@ -46,15 +51,12 @@ class BERTClass(torch.nn.Module):
         output = F.softmax(self.fc(features), dim=1)
         return output
 
-#tf = pickle.load(open('./model/tfidf.pickle', "rb"))
-#model = pickle.load(open('./model/log.pickle', "rb"))
-
 model = BERTClass()
-model.load_state_dict(torch.load('./model/model4.bin'))
+model.load_state_dict(torch.load(os.getcwd() + '/model/model4.bin'))
 #model.to('cpu')
 tokenizer = AutoTokenizer.from_pretrained('roberta-base')
 # set background
-set_page_bg('bg.png')
+set_page_bg(os.getcwd() + '/img/bg.png')
 
 st.title('Genre classifier')
 
