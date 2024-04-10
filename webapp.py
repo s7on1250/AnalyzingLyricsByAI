@@ -9,6 +9,8 @@ from clean_text import text_preprocessing_pipeline
 from annotated_text import annotated_text
 import nltk 
 from nltk.tokenize import word_tokenize
+import re
+import pymorphy2
 
 # background
 def set_page_bg(image_file):
@@ -28,7 +30,7 @@ def set_page_bg(image_file):
 
 # load labels 
 with open('./model/labels.txt', 'r') as f:
-    labels = [a for a in f.readlines()]
+    labels = [a.strip() for a in f.readlines()]
     f.close()
 
 # load model
@@ -55,6 +57,7 @@ model = BERTClass()
 model.load_state_dict(torch.load('./model/model4.bin', map_location=torch.device('cpu')))
 #model.to('cpu')
 tokenizer = AutoTokenizer.from_pretrained('roberta-base')
+
 # set background
 set_page_bg('bg.png')
 
@@ -67,57 +70,60 @@ lyrics = st.text_area("Enter lyrics:", height=500)
 # .title() is used to get the input text string
 if(st.button('Submit')):
     result = text_preprocessing_pipeline(lyrics.title())
-    #vectorised_text = vectorise(result, tf)
-    #label = predict(vectorised_text, model, labels)
-    # y_pred = predict(vectorised_text, model, labels)
-
     label = predict(result, model, tokenizer)
-    # chose the class with the highest probability
-    # with black text color
+    genre = labels[label]
     col1, col2 = st.columns(2)
-
     with col1:
-        st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{labels[label]}</p>', unsafe_allow_html=True)
+        st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{genre}</p>', unsafe_allow_html=True)
     with col2:
         st.markdown(f'<p style="color: black; font-size: 30px;">{"Possible title: "}{12345}</p>', unsafe_allow_html=True)
     st.balloons()
 
-    label_str = labels[label]
-    rap_list = ['nigga', 'money', 'ass']
-    rock_list = ['music']
-    pop_list = ['love']
-    metal_list = ['death']
-    rb_list = ['rb']
-    text_res = []
-    # text_split = word_tokenize(lyrics)
-    custom_tokenizer = nltk.tokenize.RegexpTokenizer(r'\s+|\n|[\.,!\?;:\(\)]|\w+')
-    text_split = custom_tokenizer.tokenize(lyrics)
-    print(text_split)
-    print("genre: ", label_str)
-    for word in text_split:
-        print("word: ", word.lower() in rap_list, label_str=='rap\n')
-        if word.lower() in rap_list and label_str == 'rap\n' or \
-           word.lower() in metal_list and label_str == 'metal\n' or \
-           word.lower() in rock_list and label_str == 'rock\n' or \
-           word.lower() in pop_list and label_str == 'pop\n' or \
-           word.lower() in rb_list and label_str == 'rb':
-            tup = (word, labels[label][:-1])
-            print(tup)
-            text_res.append(tup)
-        else:
-            text_res.append(word+' ')
-    # text_final = ' '.join(text_res)
-    print(text_res)
+    def highlight_words(text, words):
+        morph = pymorphy2.MorphAnalyzer()
+        tokens = text.split("\n")  # Разделяем текст по переносам строк
+        highlighted_lines = []
+        for line in tokens:
+            line_tokens = re.findall(r'\b\w+\b|[^\w\s]', line, re.UNICODE)
+            highlighted_line = ""
+            for token in line_tokens:
+                parsed_token = morph.parse(token)[0]
+                normal_form = parsed_token.normal_form
+                if normal_form in words:
+                    highlighted_line += f"<span style='background-color: #ffff99'>{token}</span> "
+                else:
+                    highlighted_line += f"{token} "
+            highlighted_lines.append(highlighted_line.strip())
+        return "<br>".join(highlighted_lines)
 
-    st.subheader("Key words of this genre: ")
-    sentence = []
-    lines = []
-    for elem in text_res:
-        if elem == '\n ':
-            if sentence:
-                lines.append(sentence)
-                sentence = []
-        else:
-            sentence.append(elem)
-    for line in lines:
-        annotated_text(line)
+    css_style = """
+        <style>
+            body {
+                font-size: 16px;
+                line-height: 1.3;
+            }
+        </style>
+    """
+
+    st.markdown(css_style, unsafe_allow_html=True)
+
+    
+    # Список слов для выделения
+    words_to_highlight_rap = ["nigga", "niggas", "shit", "money", "bitch", "fuck", "love", "man", "know", "ass", "bitches", "niggas", "lil", "baby", "girl"]
+    words_to_highlight_metal = ["death", "die", "life", "time", "blood", "end", "never", "eye", "away", "heart", "light", "fuck", "left", "feel", "world"]
+    words_to_highlight_rock = ["love", "like", "never", "know", "come", "time", "make", "take", "want", "see", "say", "feel", "think", "heart", "need", "want", "baby"]
+    words_to_highlight_pop = ["love", "like", "wanna", "know", "heart", "feel", "way", "cause", "see", "say", "make", "baby", "tell", "give", "girl"]
+    words_to_highlight_rb = ["love", "est", "way", "know", "make", "want", "baby", "feel", "need", "feel", "like", "want", "let", "dance", "girl"]
+    genre_to_list = {"rap": words_to_highlight_rap, "metal": words_to_highlight_metal, "rock": words_to_highlight_rock,
+         "pop": words_to_highlight_pop, "rb": words_to_highlight_rb}
+    
+    # Выделение слов в тексте
+    words_to_highlight = genre_to_list[genre]
+    highlighted_text = highlight_words(lyrics, words_to_highlight)
+
+    # Отображение текста с выделенными словами
+    st.markdown(highlighted_text, unsafe_allow_html=True)
+
+
+
+
