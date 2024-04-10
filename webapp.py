@@ -6,7 +6,9 @@ import torch
 from torch.nn import functional as F
 model_name = 'roberta-base'
 from clean_text import text_preprocessing_pipeline
-
+from annotated_text import annotated_text
+import nltk 
+from nltk.tokenize import word_tokenize
 
 # background
 def set_page_bg(image_file):
@@ -50,7 +52,7 @@ class BERTClass(torch.nn.Module):
 #model = pickle.load(open('./model/log.pickle', "rb"))
 
 model = BERTClass()
-model.load_state_dict(torch.load('./model/model4.bin'))
+model.load_state_dict(torch.load('./model/model4.bin', map_location=torch.device('cpu')))
 #model.to('cpu')
 tokenizer = AutoTokenizer.from_pretrained('roberta-base')
 # set background
@@ -59,7 +61,7 @@ set_page_bg('bg.png')
 st.title('Genre classifier')
 
 # text input
-lyrics = st.text_input("Enter lyrics:")
+lyrics = st.text_area("Enter lyrics:", height=500)
 
 # display the name when the submit button is clicked
 # .title() is used to get the input text string
@@ -72,5 +74,50 @@ if(st.button('Submit')):
     label = predict(result, model, tokenizer)
     # chose the class with the highest probability
     # with black text color
-    st.markdown(f'<p style="color: black; font-size: 30px;">{labels[label]}</p>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{labels[label]}</p>', unsafe_allow_html=True)
+    with col2:
+        st.markdown(f'<p style="color: black; font-size: 30px;">{"Possible title: "}{12345}</p>', unsafe_allow_html=True)
     st.balloons()
+
+    label_str = labels[label]
+    rap_list = ['nigga', 'money', 'ass']
+    rock_list = ['music']
+    pop_list = ['love']
+    metal_list = ['death']
+    rb_list = ['rb']
+    text_res = []
+    # text_split = word_tokenize(lyrics)
+    custom_tokenizer = nltk.tokenize.RegexpTokenizer(r'\s+|\n|[\.,!\?;:\(\)]|\w+')
+    text_split = custom_tokenizer.tokenize(lyrics)
+    print(text_split)
+    print("genre: ", label_str)
+    for word in text_split:
+        print("word: ", word.lower() in rap_list, label_str=='rap\n')
+        if word.lower() in rap_list and label_str == 'rap\n' or \
+           word.lower() in metal_list and label_str == 'metal\n' or \
+           word.lower() in rock_list and label_str == 'rock\n' or \
+           word.lower() in pop_list and label_str == 'pop\n' or \
+           word.lower() in rb_list and label_str == 'rb':
+            tup = (word, labels[label][:-1])
+            print(tup)
+            text_res.append(tup)
+        else:
+            text_res.append(word+' ')
+    # text_final = ' '.join(text_res)
+    print(text_res)
+
+    st.subheader("Key words of this genre: ")
+    sentence = []
+    lines = []
+    for elem in text_res:
+        if elem == '\n ':
+            if sentence:
+                lines.append(sentence)
+                sentence = []
+        else:
+            sentence.append(elem)
+    for line in lines:
+        annotated_text(line)
