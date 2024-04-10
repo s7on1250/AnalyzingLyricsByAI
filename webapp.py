@@ -1,15 +1,8 @@
 import streamlit as st
 import base64
-import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
 from utils import *
-from sklearn.linear_model import LogisticRegression
 from transformers import AutoModel, AutoTokenizer
 import torch
-from bs4 import BeautifulSoup
-import re
-import numpy as np
-import string
 from torch.nn import functional as F
 model_name = 'roberta-base'
 from clean_text import text_preprocessing_pipeline
