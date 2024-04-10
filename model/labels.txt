@@ -1,5 +1,5 @@
-rap
+metal
 pop
-rock
+rap
 rb
-country
+rock

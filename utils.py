@@ -7,34 +7,16 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 import string
+from clean_text import text_preprocessing_pipeline
 import torch
+
 nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 stemmer = PorterStemmer()
 
-def preprocess_text(text):
-    text = text.lower()
-    text = word_tokenize(text)
-    text = [stemmer.stem(word) for word in text if word not in stop_words and word not in string.punctuation and len(word)]
-    return [' '.join(text)]
-
-def vectorise(text, tf):
-    text = preprocess_text(text)
-    #print(text)
-    tfidf = tf
-    vec_text = tfidf.transform(text)
-    return vec_text
-
-'''def predict(text, model, labels):
-    y_pred = model.predict(text)
-    label = labels[int(y_pred[0])]
-    return label '''
-
-
-def predict(text, model,tokenizer):
-    model.eval()
-    inputs = tokenizer.encode_plus(
+def vectorise(text, vectorizer):
+    return vectorizer.encode_plus(
         text,
         truncation=True,
         add_special_tokens=True,
@@ -42,9 +24,16 @@ def predict(text, model,tokenizer):
         padding='max_length',
         return_token_type_ids=True
     )
-    ids = torch.tensor(inputs['input_ids'], dtype=torch.long).unsqueeze(0)
-    mask = torch.tensor(inputs['attention_mask'], dtype=torch.long).unsqueeze(0)
-    token_type_ids = torch.tensor(inputs["token_type_ids"], dtype=torch.long).unsqueeze(0)
-    outputs = model(ids, mask, token_type_ids)
-    outputs = torch.sigmoid(outputs).detach().numpy()
-    return outputs
+
+
+def predict(text, model, tokenizer):
+    text = text_preprocessing_pipeline(text)
+    text = vectorise(text, tokenizer)
+    input_ids = torch.tensor(text['input_ids']).unsqueeze(0)
+    attention_mask = torch.tensor(text['attention_mask']).unsqueeze(0)
+    token_type_ids = torch.tensor(text['token_type_ids']).unsqueeze(0)
+    output = model(input_ids, attention_mask, token_type_ids).detach().numpy()
+    print(output)
+    print(output.argmax().item())
+    return output.argmax().item()
+
