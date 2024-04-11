@@ -126,7 +126,8 @@ if select_event == 'Жанровый классификатор':
     
 
 if select_event == 'Интерактивная карта':
-    st.title('Самые популярные слова в странах мира')
+    st.markdown("<h1 style='text-align: center; color: #322c2c;'>Самые популярные слова в треках разных стран</h1>", unsafe_allow_html=True)
+    # st.title('Самые популярные слова в странах мира')
     st.plotly_chart(draw_map_cases(),
                     use_container_width=True
                     )
