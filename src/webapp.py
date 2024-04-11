@@ -40,23 +40,6 @@ def draw_map_cases():
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
-# load model
-
-# class BERTClass(torch.nn.Module):
-#     def __init__(self):
-#         super(BERTClass, self).__init__()
-#         self.roberta = AutoModel.from_pretrained(model_name)
-#         self.fc = torch.nn.Linear(768,5)
-
-#     def forward(self, ids, mask, token_type_ids):
-#         _, features = self.roberta(ids, attention_mask = mask, token_type_ids = token_type_ids, return_dict=False)
-#         output = F.softmax(self.fc(features), dim=1)
-#         return output
-
-# model = BERTClass()
-# model.load_state_dict(torch.load(os.getcwd() + '/model/model4.bin', map_location=torch.device('cpu')))
-# tokenizer = AutoTokenizer.from_pretrained('roberta-base')
-
 # set background
 set_page_bg(os.getcwd() + '/img/bg.png')
 
