@@ -62,8 +62,8 @@ if select_event == 'Жанровый классификатор':
 
         genre = responce['predict']
         title = responce['title']
-        if(title == 'rhythm and blues'):
-            title = 'rb'
+        if(genre == 'rhythm and blues'):
+            genre = 'rb'
         col1, col2 = st.columns(2)
         with col1:
             st.subheader(f'Жанр: :red[{genre}]')
