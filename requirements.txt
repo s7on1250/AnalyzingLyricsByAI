@@ -1,0 +1,7 @@
+torch~=2.0.1
+numpy~=1.24.4
+emoji~=2.11.0
+fastapi~=0.110.1
+transformers~=4.32.1
+beautifulsoup4~=4.11.1
+uvicorn~=0.29.0
