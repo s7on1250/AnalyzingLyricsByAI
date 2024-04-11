@@ -65,11 +65,11 @@ if select_event == 'Жанровый классификатор':
         
         col1, col2 = st.columns(2)
         with col1:
-            st.subheader(f'Жанр: :red[{genre}]')
+            st.markdown(f"<h2 style='color:black'>Жанр: {genre}</h2>", unsafe_allow_html=True)
         with col2:
-            st.subheader(f'Сгенерированное название: :red[{title}]')
+            st.markdown(f"<h2 style='color:black'>Сгенерированное название: {title}</h2>", unsafe_allow_html=True)
         st.balloons()
-        
+
         if(genre == 'rhythm and blues'):
             genre = 'rb'
 
@@ -100,8 +100,8 @@ if select_event == 'Жанровый классификатор':
         highlighted_text = highlight_words(lyrics, words_to_highlight)
 
         # Отображение текста с выделенными словами
-        st.subheader('Popular words for this genre: ')
-        st.markdown(highlighted_text, unsafe_allow_html=True)
+        st.markdown("<h2 style='color:black'>Popular words for this genre:</h2>", unsafe_allow_html=True)
+        st.markdown(f"<span style='color:black'>{highlighted_text}</span>", unsafe_allow_html=True)
     
 
 if select_event == 'Интерактивная карта':
