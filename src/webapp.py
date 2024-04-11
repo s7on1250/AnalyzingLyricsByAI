@@ -53,7 +53,7 @@ class BERTClass(torch.nn.Module):
         return output
 
 model = BERTClass()
-model.load_state_dict(torch.load(os.getcwd() + '/model/model4.bin'))
+model.load_state_dict(torch.load(os.getcwd() + '/model/model4.bin', map_location=torch.device('cpu')))
 #model.to('cpu')
 tokenizer = AutoTokenizer.from_pretrained('roberta-base')
 
