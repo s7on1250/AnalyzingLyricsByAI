@@ -17,4 +17,4 @@
 15,NN,tf-idf,0.6
 16,NN,BoW,0.603
 17,NN,N-grams BoW,0.594
-18,Roberta,Roberta,0.7477142857142857
+18,Transfer learning NN,Roberta,0.7477142857142857
