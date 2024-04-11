@@ -2,20 +2,15 @@ import sys
 import os
 import streamlit as st
 import base64
-from transformers import AutoModel, AutoTokenizer
-import torch
-from torch.nn import functional as F
 model_name = 'roberta-base'
-from clean_text import text_preprocessing_pipeline
 from display_utils import set_page_bg, highlight_words, load_words
-import nltk
 sys.path.insert(0, '../src')
 from utils import predict
 import re
-import pymorphy3
 import json
 import pandas as pd
 import plotly.express as px
+import requests
 
 
 DATA = './data/top_words.csv'
@@ -45,23 +40,6 @@ def draw_map_cases():
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig
 
-# load model
-
-class BERTClass(torch.nn.Module):
-    def __init__(self):
-        super(BERTClass, self).__init__()
-        self.roberta = AutoModel.from_pretrained(model_name)
-        self.fc = torch.nn.Linear(768,5)
-
-    def forward(self, ids, mask, token_type_ids):
-        _, features = self.roberta(ids, attention_mask = mask, token_type_ids = token_type_ids, return_dict=False)
-        output = F.softmax(self.fc(features), dim=1)
-        return output
-
-model = BERTClass()
-model.load_state_dict(torch.load(os.getcwd() + '/model/model4.bin', map_location=torch.device('cpu')))
-tokenizer = AutoTokenizer.from_pretrained('roberta-base')
-
 # set background
 set_page_bg(os.getcwd() + '/img/bg.png')
 
@@ -81,16 +59,17 @@ if select_event == 'Жанровый классификатор':
     # display the name when the submit button is clicked
     # .title() is used to get the input text string
     if(st.button('Submit')):
-        result = text_preprocessing_pipeline(lyrics.title())
+        with open('./data/server.json') as json_file:
+            server = json.load(json_file)
+            responce = eval(requests.get('http://' + server['ip_address'] + '/predict/' + lyrics.title()).text)
 
-        label = predict(result, model, tokenizer)
-
-        genre = labels[label]
+        genre = responce['predict']
+        title = responce['title']
         col1, col2 = st.columns(2)
         with col1:
             st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{genre}</p>', unsafe_allow_html=True)
         with col2:
-            st.markdown(f'<p style="color: black; font-size: 30px;">{"Possible title: "}{12345}</p>', unsafe_allow_html=True)
+            st.markdown(f'<p style="color: black; font-size: 30px;">{"Possible title: "}{title}</p>', unsafe_allow_html=True)
         st.balloons()
 
 
