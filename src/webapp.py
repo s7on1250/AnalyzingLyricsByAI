@@ -1,12 +1,9 @@
 import sys
 import os
 import streamlit as st
-import base64
 model_name = 'roberta-base'
 from display_utils import set_page_bg, highlight_words, load_words
 sys.path.insert(0, '../src')
-from utils import predict
-import re
 import json
 import pandas as pd
 import plotly.express as px
@@ -65,6 +62,8 @@ if select_event == 'Жанровый классификатор':
 
         genre = responce['predict']
         title = responce['title']
+        if(title == 'rhythm and blues'):
+            title = 'rb'
         col1, col2 = st.columns(2)
         with col1:
             st.subheader(f'Жанр: :red[{genre}]')
