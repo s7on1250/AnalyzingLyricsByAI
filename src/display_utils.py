@@ -32,7 +32,7 @@ def highlight_words(text, words):
                 parsed_token = morph.parse(token)[0]
                 normal_form = parsed_token.normal_form
                 if normal_form in words:
-                    highlighted_line += f"<span style='background-color: #ffff99'>{token}</span> "
+                    highlighted_line += f"<span style='background-color: #fecedc'>{token}</span> "
                 else:
                     highlighted_line += f"{token} "
             highlighted_lines.append(highlighted_line.strip())

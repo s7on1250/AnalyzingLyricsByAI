@@ -50,7 +50,7 @@ df = load_data()
 
 st.sidebar.title("Выберите функцию для отображения")
 
-select_event = st.sidebar.selectbox('Show map', ('Жанровый классификатор', 'Интерактивная карта'))
+select_event = st.sidebar.selectbox('', ('Жанровый классификатор', 'Интерактивная карта'))
 if select_event == 'Жанровый классификатор':
     st.markdown("<h1 style='text-align: center; color: #322c2c;'>Жанровый классификатор</h1>", unsafe_allow_html=True)
     st.markdown("<div style='color: #fe6053;'>Введите текст песни</div>", unsafe_allow_html=True)
@@ -67,9 +67,9 @@ if select_event == 'Жанровый классификатор':
         title = responce['title']
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{genre}</p>', unsafe_allow_html=True)
+            st.subheader(f'Жанр: :red[{genre}]')
         with col2:
-            st.markdown(f'<p style="color: black; font-size: 30px;">{"Possible title: "}{title}</p>', unsafe_allow_html=True)
+            st.subheader(f'Сгенерированное название: :red[{title}]')
         st.balloons()
 
 
