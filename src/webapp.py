@@ -12,6 +12,16 @@ sys.path.insert(0, '../src')
 from utils import predict
 import re
 import pymorphy3
+import json
+import pandas as pd
+import plotly.express as px
+
+
+DATA = './data/top_words.csv'
+
+@st.cache_data
+def load_data():
+    return pd.read_csv(DATA)
 
 # background
 def set_page_bg(image_file):
@@ -34,6 +44,21 @@ def set_page_bg(image_file):
 with open(os.getcwd() + '/model/labels.txt', 'r') as f:
     labels = f.read().splitlines()
     f.close()
+
+# draw a map
+def draw_map_cases(): 
+    fig = px.choropleth_mapbox(df,
+                               geojson=json_locations,
+                               locations='iso_code',
+                               hover_data=['top_word'],
+                               color_continuous_scale="Reds",
+                               mapbox_style="carto-positron",
+                               title="Most frequent words in country",
+                               zoom=1,
+                               opacity=0.5,
+                               )
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return fig
 
 # load model
 
@@ -60,67 +85,82 @@ tokenizer = AutoTokenizer.from_pretrained('roberta-base')
 # set background
 set_page_bg(os.getcwd() + '/img/bg.png')
 
-st.title('Genre classifier')
+with open('data/countries.geo.json') as json_file:
+    json_locations = json.load(json_file)
+# Draw the map
+df = load_data()
 
-# text input
-lyrics = st.text_area("Enter lyrics:", height=500)
+st.sidebar.title("Выберите функцию для отображения")
 
-# display the name when the submit button is clicked
-# .title() is used to get the input text string
-if(st.button('Submit')):
-    result = text_preprocessing_pipeline(lyrics.title())
+select_event = st.sidebar.selectbox('Show map', ('Жанровый классификатор', 'Интерактивная карта'))
+if select_event == 'Жанровый классификатор':
+    st.title('Жанровый классификатор')
+    lyrics = st.text_area("Enter lyrics:", height=500)
 
-    label = predict(result, model, tokenizer)
+    # display the name when the submit button is clicked
+    # .title() is used to get the input text string
+    if(st.button('Submit')):
+        result = text_preprocessing_pipeline(lyrics.title())
 
-    genre = labels[label]
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{genre}</p>', unsafe_allow_html=True)
-    with col2:
-        st.markdown(f'<p style="color: black; font-size: 30px;">{"Possible title: "}{12345}</p>', unsafe_allow_html=True)
-    st.balloons()
+        label = predict(result, model, tokenizer)
 
-    def highlight_words(text, words):
-        morph = pymorphy3.MorphAnalyzer()
-        tokens = text.split("\n")  # Разделяем текст по переносам строк
-        highlighted_lines = []
-        for line in tokens:
-            line_tokens = re.findall(r'\b\w+\b|[^\w\s]', line, re.UNICODE)
-            highlighted_line = ""
-            for token in line_tokens:
-                parsed_token = morph.parse(token)[0]
-                normal_form = parsed_token.normal_form
-                if normal_form in words:
-                    highlighted_line += f"<span style='background-color: #ffff99'>{token}</span> "
-                else:
-                    highlighted_line += f"{token} "
-            highlighted_lines.append(highlighted_line.strip())
-        return "<br>".join(highlighted_lines)
+        genre = labels[label]
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f'<p style="color: black; font-size: 30px;">{"Genre: "}{genre}</p>', unsafe_allow_html=True)
+        with col2:
+            st.markdown(f'<p style="color: black; font-size: 30px;">{"Possible title: "}{12345}</p>', unsafe_allow_html=True)
+        st.balloons()
 
-    css_style = """
-        <style>
-            body {
-                font-size: 16px;
-                line-height: 1.3;
-            }
-        </style>
-    """
+        def highlight_words(text, words):
+            morph = pymorphy3.MorphAnalyzer()
+            tokens = text.split("\n")  # Разделяем текст по переносам строк
+            highlighted_lines = []
+            for line in tokens:
+                line_tokens = re.findall(r'\b\w+\b|[^\w\s]', line, re.UNICODE)
+                highlighted_line = ""
+                for token in line_tokens:
+                    parsed_token = morph.parse(token)[0]
+                    normal_form = parsed_token.normal_form
+                    if normal_form in words:
+                        highlighted_line += f"<span style='background-color: #ffff99'>{token}</span> "
+                    else:
+                        highlighted_line += f"{token} "
+                highlighted_lines.append(highlighted_line.strip())
+            return "<br>".join(highlighted_lines)
 
-    st.markdown(css_style, unsafe_allow_html=True)
+        css_style = """
+            <style>
+                body {
+                    font-size: 16px;
+                    line-height: 1.3;
+                }
+            </style>
+        """
+
+        st.markdown(css_style, unsafe_allow_html=True)
 
 
-    # Список слов для выделения
-    words_to_highlight_rap = ["nigga", "niggas", "shit", "money", "bitch", "fuck", "love", "man", "know", "ass", "bitches", "niggas", "lil", "baby", "girl"]
-    words_to_highlight_metal = ["death", "die", "life", "time", "blood", "end", "never", "eye", "away", "heart", "light", "fuck", "left", "feel", "world"]
-    words_to_highlight_rock = ["love", "like", "never", "know", "come", "time", "make", "take", "want", "see", "say", "feel", "think", "heart", "need", "want", "baby"]
-    words_to_highlight_pop = ["love", "like", "wanna", "know", "heart", "feel", "way", "cause", "see", "say", "make", "baby", "tell", "give", "girl"]
-    words_to_highlight_rb = ["love", "est", "way", "know", "make", "want", "baby", "feel", "need", "feel", "like", "want", "let", "dance", "girl"]
-    genre_to_list = {"rap": words_to_highlight_rap, "metal": words_to_highlight_metal, "rock": words_to_highlight_rock,
-         "pop": words_to_highlight_pop, "rb": words_to_highlight_rb}
+        # Список слов для выделения
+        words_to_highlight_rap = ["nigga", "niggas", "shit", "money", "bitch", "fuck", "love", "man", "know", "ass", "bitches", "niggas", "lil", "baby", "girl"]
+        words_to_highlight_metal = ["death", "die", "life", "time", "blood", "end", "never", "eye", "away", "heart", "light", "fuck", "left", "feel", "world"]
+        words_to_highlight_rock = ["love", "like", "never", "know", "come", "time", "make", "take", "want", "see", "say", "feel", "think", "heart", "need", "want", "baby"]
+        words_to_highlight_pop = ["love", "like", "wanna", "know", "heart", "feel", "way", "cause", "see", "say", "make", "baby", "tell", "give", "girl"]
+        words_to_highlight_rb = ["love", "est", "way", "know", "make", "want", "baby", "feel", "need", "feel", "like", "want", "let", "dance", "girl"]
+        genre_to_list = {"rap": words_to_highlight_rap, "metal": words_to_highlight_metal, "rock": words_to_highlight_rock,
+            "pop": words_to_highlight_pop, "rb": words_to_highlight_rb}
 
-    # Выделение слов в тексте
-    words_to_highlight = genre_to_list[genre]
-    highlighted_text = highlight_words(lyrics, words_to_highlight)
+        # Выделение слов в тексте
+        words_to_highlight = genre_to_list[genre]
+        highlighted_text = highlight_words(lyrics, words_to_highlight)
 
-    # Отображение текста с выделенными словами
-    st.markdown(highlighted_text, unsafe_allow_html=True)
+        # Отображение текста с выделенными словами
+        st.markdown(highlighted_text, unsafe_allow_html=True)
+
+
+if select_event == 'Интерактивная карта':
+    st.title('Самые популярные слова в странах мира')
+    st.plotly_chart(draw_map_cases(),
+                    use_container_width=True
+                    )
+
