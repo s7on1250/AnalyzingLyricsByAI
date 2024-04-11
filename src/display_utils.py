@@ -13,7 +13,7 @@ def set_page_bg(image_file):
         <style>
         .stApp {{
             background-image: url(data:image/png;base64,{b64_encoded});
-            background-size: cover;
+            background-size: contain;
         }}
         </style>
     """

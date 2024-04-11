@@ -74,8 +74,9 @@ st.sidebar.title("Выберите функцию для отображения"
 
 select_event = st.sidebar.selectbox('Show map', ('Жанровый классификатор', 'Интерактивная карта'))
 if select_event == 'Жанровый классификатор':
-    st.title('Жанровый классификатор')
-    lyrics = st.text_area("Enter lyrics:", height=500)
+    st.markdown("<h1 style='text-align: center; color: #322c2c;'>Жанровый классификатор</h1>", unsafe_allow_html=True)
+    st.markdown("<div style='color: #fe6053;'>Введите текст песни</div>", unsafe_allow_html=True)
+    lyrics = st.text_area("", height=500)
 
     # display the name when the submit button is clicked
     # .title() is used to get the input text string
