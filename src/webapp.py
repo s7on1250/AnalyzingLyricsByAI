@@ -68,7 +68,7 @@ if select_event == 'Жанровый классификатор':
         with col1:
             st.markdown(f"<h2 style='color:black'>Жанр: <span style='color:red'>{genre}</span></h2>", unsafe_allow_html=True)
         with col2:
-            st.markdown(f"<h2 style='color:black'>Жанр: <span style='color:red'>{title}</span></h2>", unsafe_allow_html=True)
+            st.markdown(f"<h2 style='color:black'>Сгенерированное название: <span style='color:red'>{title}</span></h2>", unsafe_allow_html=True)
         st.balloons()
 
         if(genre == 'rhythm and blues'):
