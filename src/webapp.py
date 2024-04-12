@@ -51,7 +51,8 @@ select_event = st.sidebar.selectbox('', ('Жанровый классифика�
 if select_event == 'Жанровый классификатор':
     st.markdown("<h1 style='text-align: center; color: #322c2c;'>Жанровый классификатор</h1>", unsafe_allow_html=True)
     st.markdown("<div style='color: #fe6053;'>Введите текст песни</div>", unsafe_allow_html=True)
-    lyrics = st.text_area("", height=500)
+    text = open('src/lyrics/1.txt', 'r').read()
+    lyrics = st.text_area("", value=text, height=500)
 
     # display the name when the submit button is clicked
     # .title() is used to get the input text string
