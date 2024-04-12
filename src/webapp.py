@@ -8,6 +8,8 @@ import json
 import pandas as pd
 import plotly.express as px
 import requests
+import pyperclip
+from copy import deepcopy
 
 
 DATA = './data/top_words.csv'
@@ -51,7 +53,20 @@ select_event = st.sidebar.selectbox('', ('Жанровый классифика�
 if select_event == 'Жанровый классификатор':
     st.markdown("<h1 style='text-align: center; color: #322c2c;'>Жанровый классификатор</h1>", unsafe_allow_html=True)
     st.markdown("<div style='color: #fe6053;'>Введите текст песни</div>", unsafe_allow_html=True)
+
+
+    # copy text into clipboard
+    # Create a button to copy the text
+    if st.button("Скопировать пример в буфер обмена"):
+        text_to_copy = open('./src/lyrics/1.txt', 'r').read()
+        # Copy the text to the clipboard
+        pyperclip.copy(text_to_copy)
+        # Inform the user that the text has been copied
+        st.success("Текст скопирован в буфер обмена")
+
     lyrics = st.text_area("", height=500)
+
+
 
     # display the name when the submit button is clicked
     # .title() is used to get the input text string
