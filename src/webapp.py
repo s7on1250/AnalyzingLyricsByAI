@@ -8,8 +8,6 @@ import json
 import pandas as pd
 import plotly.express as px
 import requests
-import pyperclip
-from copy import deepcopy
 
 
 DATA = './data/top_words.csv'
@@ -19,13 +17,13 @@ def load_data():
     return pd.read_csv(DATA)
 
 
-# load labels 
+# load labels
 with open(os.getcwd() + '/model/labels.txt', 'r') as f:
     labels = f.read().splitlines()
     f.close()
 
 # draw a map
-def draw_map_cases(): 
+def draw_map_cases():
     fig = px.choropleth_mapbox(df,
                                geojson=json_locations,
                                locations='iso_code',
@@ -53,20 +51,7 @@ select_event = st.sidebar.selectbox('', ('Жанровый классифика�
 if select_event == 'Жанровый классификатор':
     st.markdown("<h1 style='text-align: center; color: #322c2c;'>Жанровый классификатор</h1>", unsafe_allow_html=True)
     st.markdown("<div style='color: #fe6053;'>Введите текст песни</div>", unsafe_allow_html=True)
-
-
-    # copy text into clipboard
-    # Create a button to copy the text
-    if st.button("Скопировать пример в буфер обмена"):
-        text_to_copy = open('./src/lyrics/1.txt', 'r').read()
-        # Copy the text to the clipboard
-        pyperclip.copy(text_to_copy)
-        # Inform the user that the text has been copied
-        st.success("Текст скопирован в буфер обмена")
-
     lyrics = st.text_area("", height=500)
-
-
 
     # display the name when the submit button is clicked
     # .title() is used to get the input text string
@@ -77,7 +62,7 @@ if select_event == 'Жанровый классификатор':
 
         genre = responce['predict']
         title = responce['title']
-        
+
         col1, col2 = st.columns(2)
         with col1:
             st.markdown(f"<h2 style='color:black'>Жанр: {genre}</h2>", unsafe_allow_html=True)
@@ -107,8 +92,8 @@ if select_event == 'Жанровый классификатор':
         words_to_highlight_pop = load_words('/src/popular_pop_words.txt')
         words_to_highlight_rb = load_words('/src/popular_rb_words.txt')
         genre_to_list = {"rap": words_to_highlight_rap, "metal": words_to_highlight_metal,
-                        "rock": words_to_highlight_rock, "pop": words_to_highlight_pop,
-                        "rb": words_to_highlight_rb}
+                         "rock": words_to_highlight_rock, "pop": words_to_highlight_pop,
+                         "rb": words_to_highlight_rb}
 
         # Выделение слов в тексте
         words_to_highlight = genre_to_list[genre]
@@ -117,7 +102,7 @@ if select_event == 'Жанровый классификатор':
         # Отображение текста с выделенными словами
         st.markdown("<h2 style='color:black'>Popular words for this genre:</h2>", unsafe_allow_html=True)
         st.markdown(f"<span style='color:black'>{highlighted_text}</span>", unsafe_allow_html=True)
-    
+
 
 if select_event == 'Интерактивная карта':
     st.markdown("<h1 style='text-align: center; color: #322c2c;'>Самые популярные слова в треках разных стран</h1>", unsafe_allow_html=True)
